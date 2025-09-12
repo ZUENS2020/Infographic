@@ -1,8 +1,24 @@
 export interface JSXElement {
   type: string | Symbol | Function;
-  props: any;
-  children?: JSXElement[];
+  props: Record<string, any>;
   key?: string | null;
 }
 
-export type WithChildren<T> = T & { children?: JSXElement | JSXElement[] };
+export type JSXNode =
+  | JSXElement
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | JSXNode[];
+
+export type RenderableNode = JSXElement | string | number;
+
+export type JSXElementConstructor<P = {}> = (props: P) => JSXNode;
+
+export type ComponentType<P = {}> = JSXElementConstructor<WithChildren<P>>;
+
+export type WithChildren<T = {}> = T & {
+  children?: JSXNode;
+};

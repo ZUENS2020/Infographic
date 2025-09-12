@@ -1,32 +1,16 @@
-import type { JSXElement } from './types';
+import type { FragmentProps, JSXElement } from './types';
 
-export function jsx(type: string | Function, props: any): JSXElement {
-  const { children } = props || {};
+export const Fragment = Symbol('Fragment');
 
-  const node: JSXElement = { type, props: { ...props } };
-
-  if (children) {
-    node.children = Array.isArray(children) ? children : [children];
-  }
-
-  return node;
+export function jsx(
+  type: string | Function | Symbol,
+  props: any = {},
+): JSXElement {
+  return { type, props, key: props.key || null };
 }
 
-export function Fragment(props: {
-  children?: JSXElement | JSXElement[];
-}): JSXElement {
-  const node: JSXElement = {
-    type: 'Fragment',
-    props: {},
-  };
-
-  if (props.children) {
-    node.children = Array.isArray(props.children)
-      ? props.children
-      : [props.children];
-  }
-
-  return node;
+export function createFragment(props: FragmentProps = {}): JSXElement {
+  return jsx(Fragment, props);
 }
 
 export const jsxs = jsx;

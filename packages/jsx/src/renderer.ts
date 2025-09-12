@@ -1,96 +1,168 @@
-import type { SVGAttributes } from 'react';
+import { DefsSymbol } from './components';
+import { Fragment } from './jsx-runtime';
 import { isLayoutComponent, performLayout } from './layout';
-import type { JSXElement, RenderContext, SVGProps } from './types';
-import { getElementBounds, toSVGAttr } from './utils';
+import type { JSXNode, RenderableNode, RenderContext, SVGProps } from './types';
+import {
+  cloneElement,
+  createDefaultContext,
+  escapeHtml,
+  getElementBounds,
+  getRenderableChildrenOf,
+  toSVGAttr,
+} from './utils';
 
-export function render(element: JSXElement, context: RenderContext): string {
-  if (!element) return '';
-  const { type, props, children } = element;
-  if (!type) return '';
-
-  if (type === 'Fragment') {
-    return children?.map((child) => render(child, context)).join('') || '';
+/**
+ * pre-process the element tree, expanding all components and layouts
+ */
+function processElement(element: JSXNode, context: RenderContext): JSXNode {
+  if (element == null || typeof element === 'boolean') return null;
+  if (typeof element === 'string' || typeof element === 'number') {
+    return element;
+  }
+  if (Array.isArray(element)) {
+    return element
+      .map((child) => processElement(child, context))
+      .filter(Boolean);
   }
 
-  // Collect definitions
-  if (type === 'Defs') {
-    children?.forEach((child) => {
-      if (child) context.defs.push(child);
+  // layout component
+  if (isLayoutComponent(element)) {
+    const layoutResult = performLayout(element, context);
+    return processElement(layoutResult, context);
+  }
+
+  // expand function components
+  if (typeof element.type === 'function') {
+    const rendered = element.type(element.props);
+    return processElement(rendered, context);
+  }
+
+  // process children
+  const children = getRenderableChildrenOf(element)
+    .map((child) => processElement(child, context))
+    .filter(Boolean) as RenderableNode[];
+
+  // process Fragment
+  if (element.type === Fragment) {
+    return children;
+  }
+
+  // process Defs, collect defs content
+  if (element.type === DefsSymbol) {
+    children.forEach((child) => {
+      if (typeof child === 'object') {
+        context.defs.push(child);
+      }
     });
+    return null;
+  }
+
+  if (children.length) {
+    return cloneElement(element, { children });
+  }
+
+  return element;
+}
+
+/**
+ * render a single element to string
+ */
+export function render(
+  element: RenderableNode,
+  context: RenderContext,
+): string {
+  if (element == null) return '';
+  if (typeof element === 'string') return escapeHtml(element);
+  if (typeof element === 'number') return String(element);
+
+  const { type, props } = element;
+  if (!type) return '';
+
+  const children = getRenderableChildrenOf(element);
+
+  if (type === Fragment) {
+    return children
+      .map((child) => render(child, context))
+      .filter(Boolean)
+      .join('');
+  }
+
+  if (type === DefsSymbol) {
     return '';
   }
 
-  // Layout component
-  if (isLayoutComponent(element)) {
-    return renderLayout(element, context);
+  // function components and layout components should have been expanded
+  if (typeof type === 'function' || isLayoutComponent(element)) {
+    console.warn('Unexpected unprocessed component in render:', element);
+    return '';
   }
 
-  if (typeof type === 'function') {
-    const node = type(props);
-    return render(node, context);
-  }
-
-  // regular svg element
   const attrs = renderAttrs(props);
-  const childrenContent = renderChildren(children, context);
-  if (childrenContent) {
-    return `<${type}${attrs}>${childrenContent}</${type}>`;
-  } else {
-    return `<${type}${attrs} />`;
-  }
+  const childrenContent = children
+    .map((child) => render(child, context))
+    .filter(Boolean)
+    .join('');
+
+  const tagName = String(type);
+
+  if (!childrenContent) return `<${tagName}${attrs} />`;
+  return `<${tagName}${attrs}>${childrenContent}</${tagName}>`;
 }
 
-export function renderSVG(element: JSXElement, props: SVGProps = {}): string {
-  const context: RenderContext = { defs: [] };
-  const content = render(element, context);
+/**
+ * render element to svg string
+ */
+export function renderSVG(element: JSXNode, props: SVGProps = {}): string {
+  const context: RenderContext = createDefaultContext();
 
-  const finalProps: SVGAttributes<SVGSVGElement> = {
+  const processed = processElement(element, context);
+  if (!processed) return '';
+
+  const content = Array.isArray(processed)
+    ? processed.map((el) => render(el as RenderableNode, context)).join('')
+    : render(processed as RenderableNode, context);
+
+  const { x, y, width, height, ...rest } = props;
+  const finalProps = {
+    ...rest,
     xmlns: 'http://www.w3.org/2000/svg',
     width: '100%',
     height: '100%',
-    ...props,
   };
 
   if (!finalProps.viewBox) {
-    if (props.width && props.height) {
-      finalProps.viewBox = `0 0 ${props.width} ${props.height}`;
+    if (width && height) {
+      finalProps.viewBox = `${x ?? 0} ${y ?? 0} ${width ?? 0} ${height ?? 0}`;
     } else {
-      const { x, y, width, height } = getElementBounds(element);
-      finalProps.viewBox = `${x} ${y} ${width} ${height}`;
+      const bounds = getElementBounds(processed);
+      if (bounds) {
+        const { x, y, width, height } = bounds;
+        finalProps.viewBox = `${x} ${y} ${width} ${height}`;
+      }
     }
   }
+
   const attrs = renderAttrs(finalProps);
   const defsContent = context.defs.length
     ? `<defs>${context.defs.map((def) => render(def, context)).join('')}</defs>`
     : '';
-
   return `<svg${attrs}>${defsContent}${content}</svg>`;
 }
 
-function renderChildren(
-  children: JSXElement[] | undefined,
-  context: RenderContext,
-) {
-  if (!children || children.length === 0) return '';
-  return children.map((child) => render(child, context)).join('');
-}
-
-function renderAttrs(props: any): string {
+/**
+ * render attributes to string
+ */
+function renderAttrs(props: Record<string, any>): string {
   if (!props) return '';
-
   const { children, ...attributes } = props;
 
   return Object.entries(attributes)
     .filter(([, value]) => value !== undefined && value !== null)
-    .map(([key, value]) => ` ${toSVGAttr(key)}="${value}"`)
+    .map(([key, value]) => {
+      const attrName = toSVGAttr(key);
+      const attrValue =
+        typeof value === 'string' ? escapeHtml(String(value)) : String(value);
+      return ` ${attrName}="${attrValue}"`;
+    })
     .join('');
-}
-
-function renderLayout(element: JSXElement, context: RenderContext) {
-  const children = performLayout(element, context);
-
-  const elements = children.map((child) => render(child, context));
-
-  const attributes = renderAttrs(element.props);
-  return `<g${attributes}>${elements.join('')}</g>`;
 }

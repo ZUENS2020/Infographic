@@ -1,14 +1,11 @@
 import type { DefsProps, JSXElement } from '../types';
 
+export const DefsSymbol = Symbol('Defs');
+
 export function Defs(props: DefsProps): JSXElement {
   const node: JSXElement = {
-    type: 'Defs',
+    type: DefsSymbol,
     props,
   };
-  if (props.children) {
-    node.children = Array.isArray(props.children)
-      ? props.children
-      : [props.children];
-  }
   return node;
 }
