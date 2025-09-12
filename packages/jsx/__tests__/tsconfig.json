@@ -1,0 +1,11 @@
+{
+  "extends": "../tsconfig.json",
+  "include": ["./unit/**/*", "../src/**/*"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@antv/infographic-jsx": ["../src"],
+      "@antv/infographic-jsx/*": ["../src/*"]
+    }
+  }
+}

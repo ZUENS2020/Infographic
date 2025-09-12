@@ -1,88 +1,294 @@
-import { Bounds, JSXElement } from '../types';
+import { isLayoutComponent, performLayout } from '../layout';
+import type { Bounds, JSXElement, JSXNode } from '../types';
+import { nodeToElements } from './element';
+import { isJSXElement } from './is-jsx-element';
+import { isNumber } from './is-number';
 
-export function getElementBounds(element: JSXElement): Bounds {
-  const props = element.props ?? {};
-  const { type } = element;
+const zero = (): Bounds => ({ x: 0, y: 0, width: 0, height: 0 });
 
-  // 如果元素自身有明确尺寸，直接返回
-  if (props.width !== undefined && props.height !== undefined) {
-    return {
-      x: props.x ?? 0,
-      y: props.y ?? 0,
-      width: props.width,
-      height: props.height,
-    };
-  }
-
-  // 如果是函数组件，执行它以得到真实节点
-  const resolved = typeof type === 'function' ? (type as any)(props) : element;
-
-  // 如果函数组件直接返回一个数组（Fragment 风格），处理为多子节点
-  if (Array.isArray(resolved)) {
-    return getElementsBounds(resolved);
-  }
-
-  // 尝试读取 resolved 节点上的 props（如果存在）
-  const resolvedProps = (resolved && (resolved as any).props) ?? {};
-
-  // 如果 resolved 节点上有明确尺寸，则以 resolved 的尺寸为准（位置优先使用 resolvedProps，再 fallback 到原 props）
-  if (resolvedProps.width !== undefined && resolvedProps.height !== undefined) {
-    return {
-      x: resolvedProps.x ?? props.x ?? 0,
-      y: resolvedProps.y ?? props.y ?? 0,
-      width: resolvedProps.width,
-      height: resolvedProps.height,
-    };
-  }
-
-  // 处理 children（既可能在 resolved.children，也可能在 resolvedProps.children）
-  const rawChildren =
-    (resolved && (resolved as any).children) ??
-    resolvedProps.children ??
-    undefined;
-
-  let children: JSXElement[] = [];
-  if (Array.isArray(rawChildren)) {
-    children = rawChildren.filter(Boolean);
-  } else if (rawChildren) {
-    children = [rawChildren];
-  }
-
-  if (children.length > 0) {
-    return getElementsBounds(children as JSXElement[]);
-  }
-
-  // 最后兜底：使用任何可用的位置/尺寸信息（都可能为 0）
-  return {
-    x: resolvedProps.x ?? props.x ?? 0,
-    y: resolvedProps.y ?? props.y ?? 0,
-    width: resolvedProps.width ?? props.width ?? 0,
-    height: resolvedProps.height ?? props.height ?? 0,
-  };
-}
-
-export function getElementsBounds(elements: JSXElement[]): Bounds {
-  if (!elements || elements.length === 0) {
-    return { x: 0, y: 0, width: 0, height: 0 };
-  }
-
-  const boundsList = elements.map(getElementBounds);
+export function getCombinedBounds(list?: Bounds[] | null): Bounds {
+  if (!list || list.length === 0) return zero();
 
   let minX = Infinity;
   let minY = Infinity;
   let maxX = -Infinity;
   let maxY = -Infinity;
 
-  for (const b of boundsList) {
-    minX = Math.min(minX, b.x);
-    minY = Math.min(minY, b.y);
-    maxX = Math.max(maxX, b.x + b.width);
-    maxY = Math.max(maxY, b.y + b.height);
+  for (const bounds of list) {
+    const { x, y, width, height } = bounds;
+    const x2 = x + width;
+    const y2 = y + height;
+    if (x < minX) minX = x;
+    if (y < minY) minY = y;
+    if (x2 > maxX) maxX = x2;
+    if (y2 > maxY) maxY = y2;
   }
 
-  if (minX === Infinity || minY === Infinity) {
+  if (
+    minX === Infinity ||
+    minY === Infinity ||
+    maxX === -Infinity ||
+    maxY === -Infinity
+  ) {
     return { x: 0, y: 0, width: 0, height: 0 };
   }
 
-  return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
+  return {
+    x: minX,
+    y: minY,
+    width: Math.max(0, maxX - minX),
+    height: Math.max(0, maxY - minY),
+  };
+}
+
+export function getElementBounds(node?: JSXNode): Bounds {
+  if (!node) return zero();
+
+  if (Array.isArray(node)) {
+    const elements = nodeToElements(node);
+    return getElementsBounds(elements);
+  }
+
+  if (typeof node !== 'object') return zero();
+
+  const { type, props = {} } = node;
+
+  if (isLayoutComponent(node)) {
+    const layoutResult = performLayout(node);
+    return getElementBounds(layoutResult);
+  }
+
+  if (typeof type === 'function') {
+    const externalX = props.x ?? 0;
+    const externalY = props.y ?? 0;
+    const externalWidth = props.width;
+    const externalHeight = props.height;
+
+    if (isNumber(externalWidth) && isNumber(externalHeight)) {
+      return {
+        x: externalX,
+        y: externalY,
+        width: externalWidth,
+        height: externalHeight,
+      };
+    }
+
+    const renderedResult = type(props) as JSXNode;
+
+    if (!renderedResult) {
+      return {
+        x: externalX,
+        y: externalY,
+        width: externalWidth ?? 0,
+        height: externalHeight ?? 0,
+      };
+    }
+
+    if (Array.isArray(renderedResult)) {
+      const elements = nodeToElements(renderedResult);
+      const innerBounds = getElementsBounds(elements);
+
+      // 如果组件提供了显式尺寸，使用它作为容器边界
+      if (isNumber(externalWidth) && isNumber(externalHeight)) {
+        return {
+          x: externalX,
+          y: externalY,
+          width: externalWidth,
+          height: externalHeight,
+        };
+      }
+
+      const width =
+        innerBounds.width !== 0 ? innerBounds.width : (externalWidth ?? 0);
+      const height =
+        innerBounds.height !== 0 ? innerBounds.height : (externalHeight ?? 0);
+
+      return {
+        x: externalX + innerBounds.x,
+        y: externalY + innerBounds.y,
+        width,
+        height,
+      };
+    }
+
+    if (isJSXElement(renderedResult)) {
+      const innerElement = renderedResult;
+      const innerBounds = getElementBounds(innerElement);
+
+      if (isPassthrough(innerElement, props)) {
+        return innerBounds;
+      }
+
+      const innerHasExplicitSize =
+        innerElement.props &&
+        isNumber(innerElement.props.width) &&
+        isNumber(innerElement.props.height);
+
+      const children = getChildrenFromElement(innerElement);
+      const jsxChildren = children.flatMap((child) => nodeToElements(child));
+      const innerHasChildren = jsxChildren.length > 0;
+
+      if (innerHasExplicitSize) {
+        return {
+          x: externalX + innerBounds.x,
+          y: externalY + innerBounds.y,
+          width: innerBounds.width,
+          height: innerBounds.height,
+        };
+      }
+
+      if (isNumber(externalWidth) && isNumber(externalHeight)) {
+        if (innerHasChildren) {
+          return {
+            x: externalX,
+            y: externalY,
+            width: externalWidth,
+            height: externalHeight,
+          };
+        } else {
+          return {
+            x: externalX + innerBounds.x,
+            y: externalY + innerBounds.y,
+            width: externalWidth,
+            height: externalHeight,
+          };
+        }
+      }
+
+      const width =
+        innerBounds.width !== 0 ? innerBounds.width : (externalWidth ?? 0);
+      const height =
+        innerBounds.height !== 0 ? innerBounds.height : (externalHeight ?? 0);
+
+      return {
+        x: externalX + innerBounds.x,
+        y: externalY + innerBounds.y,
+        width,
+        height,
+      };
+    }
+
+    return {
+      x: externalX,
+      y: externalY,
+      width: externalWidth ?? 0,
+      height: externalHeight ?? 0,
+    };
+  }
+
+  const x = props.x ?? 0;
+  const y = props.y ?? 0;
+  const width = isNumber(props.width) ? props.width : undefined;
+  const height = isNumber(props.height) ? props.height : undefined;
+
+  if (isNumber(width) && isNumber(height)) {
+    return { x, y, width, height };
+  }
+
+  // 获取子元素来计算边界
+  const children = getChildrenFromElement(node);
+  const jsxChildren = children.flatMap((child) => nodeToElements(child));
+
+  if (jsxChildren.length > 0) {
+    const innerBounds = getElementsBounds(jsxChildren);
+
+    return {
+      x: x + innerBounds.x,
+      y: y + innerBounds.y,
+      width: isNumber(width) ? width : innerBounds.width,
+      height: isNumber(height) ? height : innerBounds.height,
+    };
+  }
+
+  // 没有子元素且没有显式尺寸
+  return {
+    x,
+    y,
+    width: width ?? 0,
+    height: height ?? 0,
+  };
+}
+
+export function getElementsBounds(elements: JSXElement[]): Bounds {
+  if (!elements || !Array.isArray(elements) || elements.length === 0) {
+    return zero();
+  }
+
+  const list: Bounds[] = [];
+
+  for (const element of elements) {
+    const validElements = nodeToElements(element);
+
+    for (const validElement of validElements) {
+      const bounds = getElementBounds(validElement);
+      if (bounds) {
+        list.push(bounds);
+      }
+    }
+  }
+
+  return getCombinedBounds(list);
+}
+
+function isPassthrough(
+  innerElement: JSXElement,
+  externalProps: Record<string, any>,
+): boolean {
+  if (!innerElement?.props || !externalProps) {
+    return false;
+  }
+
+  const inner = innerElement.props;
+
+  // 检查位置是否相同
+  if (
+    isNumber(inner.x) &&
+    isNumber(inner.y) &&
+    isNumber(externalProps.x) &&
+    isNumber(externalProps.y)
+  ) {
+    if (inner.x === externalProps.x && inner.y === externalProps.y) {
+      // 如果只有位置相同，还需要检查是否都没有显式尺寸
+      const innerHasSize = isNumber(inner.width) && isNumber(inner.height);
+      const externalHasSize =
+        isNumber(externalProps.width) && isNumber(externalProps.height);
+
+      if (!innerHasSize && !externalHasSize) {
+        return true;
+      }
+    }
+  }
+
+  // 检查完整的位置和尺寸是否相同
+  if (
+    isNumber(inner.x) &&
+    isNumber(inner.y) &&
+    isNumber(inner.width) &&
+    isNumber(inner.height) &&
+    isNumber(externalProps.x) &&
+    isNumber(externalProps.y) &&
+    isNumber(externalProps.width) &&
+    isNumber(externalProps.height)
+  ) {
+    return (
+      inner.x === externalProps.x &&
+      inner.y === externalProps.y &&
+      inner.width === externalProps.width &&
+      inner.height === externalProps.height
+    );
+  }
+
+  return false;
+}
+
+function getChildrenFromElement(element: JSXElement): JSXNode[] {
+  // React 风格：只从 props.children 获取子元素
+  const children = element.props?.children;
+
+  if (!children) {
+    return [];
+  }
+
+  // 标准化为数组
+  return Array.isArray(children) ? children : [children];
 }
