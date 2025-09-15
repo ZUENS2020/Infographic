@@ -86,7 +86,7 @@ export const FlexLayout = createLayout<FlexLayoutProps>(
     let currentCrossPos = 0;
     const crossSizes: number[] = [];
 
-    lines.forEach((line, lineIndex) => {
+    lines.forEach((line) => {
       const { children: lineChildren, bounds: lineBounds } = line;
 
       const totalMainSize = lineBounds.reduce((sum, bounds, index) => {
@@ -218,6 +218,7 @@ export const FlexLayout = createLayout<FlexLayoutProps>(
             });
             break;
           }
+          break;
         default:
           crossOffset = 0;
           break;
@@ -237,11 +238,33 @@ export const FlexLayout = createLayout<FlexLayoutProps>(
     }
 
     if (!hasContainerSize) {
-      const totalBounds = getElementsBounds(layoutedChildren);
-      props.x ??= totalBounds.x;
-      props.y ??= totalBounds.y;
-      props.width ??= totalBounds.width;
-      props.height ??= totalBounds.height;
+      if (alignItems === 'center' && !isRow) {
+        // For column layout, center items horizontally
+        const maxWidth = Math.max(...childBounds.map(bounds => bounds.width));
+        layoutedChildren.forEach((child, index) => {
+          const bounds = childBounds[index];
+          const centerOffset = (maxWidth - bounds.width) / 2;
+          const newProps = { ...child.props };
+          newProps.x = (newProps.x || 0) + centerOffset;
+          layoutedChildren[index] = cloneElement(child, newProps);
+        });
+      } else if (alignItems === 'center' && isRow) {
+        // For row layout, center items vertically
+        const maxHeight = Math.max(...childBounds.map(bounds => bounds.height));
+        layoutedChildren.forEach((child, index) => {
+          const bounds = childBounds[index];
+          const centerOffset = (maxHeight - bounds.height) / 2;
+          const newProps = { ...child.props };
+          newProps.y = (newProps.y || 0) + centerOffset;
+          layoutedChildren[index] = cloneElement(child, newProps);
+        });
+      }
+      
+      const finalBounds = getElementsBounds(layoutedChildren);
+      props.x ??= finalBounds.x;
+      props.y ??= finalBounds.y;
+      props.width ??= finalBounds.width;
+      props.height ??= finalBounds.height;
     }
 
     return <Group {...props}>{layoutedChildren}</Group>;
