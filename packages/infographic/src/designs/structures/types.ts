@@ -13,9 +13,10 @@ export interface BaseStructureProps {
   };
 }
 
-export interface StructureRegistration<
-  T extends BaseStructureProps = BaseStructureProps,
-> {
-  type: string;
-  component: ComponentType<T>;
+export interface Structure {
+  component: ComponentType<BaseStructureProps>;
+}
+
+export interface StructureOptions {
+  [key: string]: any;
 }

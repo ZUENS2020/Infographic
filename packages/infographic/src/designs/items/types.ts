@@ -12,13 +12,12 @@ export interface BaseItemProps {
   [key: string]: any;
 }
 
-interface ItemOptions {
+export interface ItemOptions {
   coloredArea?: ('icon' | 'label' | 'desc' | 'value')[];
   [key: string]: any;
 }
 
-export interface ItemRegistration<T extends BaseItemProps = BaseItemProps> {
-  type: string;
+export interface Item<T extends BaseItemProps = BaseItemProps> {
   component: ComponentType<T>;
   options?: ItemOptions;
 }

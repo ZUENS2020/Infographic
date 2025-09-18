@@ -1,16 +1,16 @@
 import { DoneList } from './DoneList';
 import { SimpleItem } from './SimpleItem';
-import type { ItemRegistration } from './types';
+import type { Item } from './types';
 
-const ITEM_REGISTRY = new Map<string, ItemRegistration>();
+const ITEM_REGISTRY = new Map<string, Item>();
 
-export function registerItem(item: ItemRegistration) {
-  ITEM_REGISTRY.set(item.type, item);
+export function registerItem(type: string, item: Item) {
+  ITEM_REGISTRY.set(type, item);
 }
 
-export function getItem(type: string): ItemRegistration | undefined {
+export function getItem(type: string): Item | undefined {
   return ITEM_REGISTRY.get(type);
 }
 
-registerItem({ type: 'done-list', component: DoneList });
-registerItem({ type: 'simple', component: SimpleItem });
+registerItem('done-list', { component: DoneList });
+registerItem('simple', { component: SimpleItem });
