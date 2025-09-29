@@ -3,6 +3,7 @@ import type { ComponentType, JSXElement } from '@antv/infographic-jsx';
 import { Ellipse, getElementBounds, Group, Path } from '@antv/infographic-jsx';
 import { BtnAdd, BtnRemove, BtnsGroup, ItemsGroup } from '../components';
 import { FlexLayout } from '../layouts';
+import { getColorPrimary } from '../utils';
 import { registerStructure } from './registry';
 import type { BaseStructureProps } from './types';
 
@@ -14,9 +15,10 @@ export interface SequenceTimelineProps extends BaseStructureProps {
 export const SequenceTimeline: ComponentType<SequenceTimelineProps> = (
   props,
 ) => {
-  const { Title, Item, data, gap = 40, lineOffset = 60 } = props;
+  const { Title, Item, data, gap = 40, lineOffset = 60, options } = props;
   const { title, desc, items = [] } = data;
 
+  const colorPrimary = getColorPrimary(options);
   const titleContent = Title ? <Title title={title} desc={desc} /> : null;
 
   const btnBounds = getElementBounds(<BtnAdd indexes={[0]} />);
@@ -54,7 +56,7 @@ export const SequenceTimeline: ComponentType<SequenceTimelineProps> = (
         y={nodeY - nodeRadius}
         width={nodeRadius * 2}
         height={nodeRadius * 2}
-        fill="#1890ff"
+        fill={colorPrimary}
       />,
     );
 
@@ -97,7 +99,7 @@ export const SequenceTimeline: ComponentType<SequenceTimelineProps> = (
     decorElements.push(
       <Path
         d={continuousLinePath}
-        stroke="#1890ff"
+        stroke={colorPrimary}
         strokeWidth={2}
         width={1}
         height={lastNodeY - firstNodeY}

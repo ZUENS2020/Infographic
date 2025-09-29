@@ -4,6 +4,7 @@ import { getElementBounds, Group, Path } from '@antv/infographic-jsx';
 import * as d3 from 'd3';
 import { ItemsGroup } from '../components';
 import { FlexLayout } from '../layouts';
+import { getColorPrimary } from '../utils';
 import { registerStructure } from './registry';
 import type { BaseStructureProps } from './types';
 
@@ -25,7 +26,14 @@ export interface RelationNetworkProps extends BaseStructureProps {
 }
 
 export const RelationNetwork: ComponentType<RelationNetworkProps> = (props) => {
-  const { Title, Item, data, spacing = 120, showConnections = true } = props;
+  const {
+    Title,
+    Item,
+    data,
+    spacing = 120,
+    showConnections = true,
+    options,
+  } = props;
   const { title, desc, items = [] } = data;
 
   const titleContent = Title ? <Title title={title} desc={desc} /> : null;
@@ -152,7 +160,7 @@ export const RelationNetwork: ComponentType<RelationNetworkProps> = (props) => {
           return (
             <Path
               d={linePath}
-              stroke="#1890ff"
+              stroke={getColorPrimary(options)}
               strokeWidth={2}
               strokeOpacity={0.6}
             />

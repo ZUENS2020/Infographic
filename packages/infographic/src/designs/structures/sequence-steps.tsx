@@ -3,6 +3,7 @@ import type { ComponentType, JSXElement } from '@antv/infographic-jsx';
 import { getElementBounds, Group, Polygon } from '@antv/infographic-jsx';
 import { BtnAdd, BtnRemove, BtnsGroup, ItemsGroup } from '../components';
 import { FlexLayout } from '../layouts';
+import { getColorPrimary } from '../utils';
 import { registerStructure } from './registry';
 import type { BaseStructureProps } from './types';
 
@@ -11,7 +12,7 @@ export interface SequenceStepsProps extends BaseStructureProps {
 }
 
 export const SequenceSteps: ComponentType<SequenceStepsProps> = (props) => {
-  const { Title, Item, data, gap = 40 } = props;
+  const { Title, Item, data, gap = 40, options } = props;
   const { title, desc, items = [] } = data;
 
   const titleContent = Title ? <Title title={title} desc={desc} /> : null;
@@ -86,7 +87,7 @@ export const SequenceSteps: ComponentType<SequenceStepsProps> = (props) => {
             },
             { x: arrowX, y: arrowY + arrowHeight },
           ]}
-          fill="#666"
+          fill={getColorPrimary(options)}
         />,
       );
     }

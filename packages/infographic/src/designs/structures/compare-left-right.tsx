@@ -3,6 +3,7 @@ import type { ComponentType, JSXElement } from '@antv/infographic-jsx';
 import { getElementBounds, Group, Path } from '@antv/infographic-jsx';
 import { BtnAdd, BtnRemove, BtnsGroup, ItemsGroup } from '../components';
 import { FlexLayout } from '../layouts';
+import { getColorPrimary } from '../utils';
 import { registerStructure } from './registry';
 import type { BaseStructureProps } from './types';
 
@@ -14,7 +15,7 @@ export interface CompareLeftRightProps extends BaseStructureProps {
 export const CompareLeftRight: ComponentType<CompareLeftRightProps> = (
   props,
 ) => {
-  const { Title, Item, data, gap = 20, centerGap = 80 } = props;
+  const { Title, Item, data, gap = 20, centerGap = 80, options } = props;
   const { title, desc, items = [] } = data;
 
   const titleContent = Title ? <Title title={title} desc={desc} /> : null;
@@ -137,7 +138,7 @@ export const CompareLeftRight: ComponentType<CompareLeftRightProps> = (
       <Group>
         <Path
           d={dividerPath}
-          stroke="#ddd"
+          stroke={getColorPrimary(options)}
           strokeWidth={2}
           width={1}
           height={totalHeight}

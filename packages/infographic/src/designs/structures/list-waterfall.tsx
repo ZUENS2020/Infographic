@@ -1,6 +1,6 @@
 /** @jsxImportSource @antv/infographic-jsx */
 import type { ComponentType, JSXElement } from '@antv/infographic-jsx';
-import { Ellipse, getElementBounds, Group, Path } from '@antv/infographic-jsx';
+import { getElementBounds, Group } from '@antv/infographic-jsx';
 import { BtnAdd, BtnRemove, BtnsGroup, ItemsGroup } from '../components';
 import { FlexLayout } from '../layouts';
 import { registerStructure } from './registry';
@@ -9,11 +9,20 @@ import type { BaseStructureProps } from './types';
 export interface ListWaterfallProps extends BaseStructureProps {
   columns?: number;
   gap?: number;
-  offsetRange?: number;
+  stepHeight?: number;
+  randomOffset?: number;
 }
 
 export const ListWaterfall: ComponentType<ListWaterfallProps> = (props) => {
-  const { Title, Item, data, columns = 3, gap = 20, offsetRange = 50 } = props;
+  const {
+    Title,
+    Item,
+    data,
+    columns = 4,
+    gap = 20,
+    stepHeight = 40,
+    randomOffset = 20,
+  } = props;
   const { title, desc, items = [] } = data;
 
   const titleContent = Title ? <Title title={title} desc={desc} /> : null;
@@ -25,23 +34,24 @@ export const ListWaterfall: ComponentType<ListWaterfallProps> = (props) => {
 
   const btnElements: JSXElement[] = [];
   const itemElements: JSXElement[] = [];
-  const decorElements: JSXElement[] = [];
 
   const colWidth = itemBounds.width + gap;
-  const columnHeights: number[] = new Array(columns).fill(0);
-  const itemPositions: Array<{ x: number; y: number; col: number }> = [];
 
   items.forEach((item, index) => {
-    const shortestCol = columnHeights.indexOf(Math.min(...columnHeights));
-    const itemX = shortestCol * colWidth;
-    const itemY = columnHeights[shortestCol];
+    const col = index % columns;
+    const row = Math.floor(index / columns);
 
-    const heightVariation = ((index * 17) % 37) * (offsetRange / 37);
-    const finalY = itemY + (index > 0 ? heightVariation : 0);
+    const itemX = col * colWidth;
+
+    const baseY = row * (itemBounds.height + gap);
+    const columnStepOffset = col * stepHeight;
+
+    const pseudoRandomSeed = (index * 47 + col * 23) % 100;
+    const randomVariation = (pseudoRandomSeed / 100 - 0.5) * randomOffset;
+
+    const itemY = baseY + columnStepOffset + randomVariation;
 
     const indexes = [index];
-
-    itemPositions.push({ x: itemX, y: finalY, col: shortestCol });
 
     itemElements.push(
       <Item
@@ -49,120 +59,67 @@ export const ListWaterfall: ComponentType<ListWaterfallProps> = (props) => {
         datum={item}
         data={data}
         x={itemX}
-        y={finalY}
+        y={itemY}
         positionH="center"
       />,
     );
 
-    // Remove button - positioned directly below item center
     btnElements.push(
       <BtnRemove
         indexes={indexes}
         x={itemX + (itemBounds.width - btnBounds.width) / 2}
-        y={finalY + itemBounds.height}
+        y={itemY + itemBounds.height + 5}
       />,
     );
-
-    columnHeights[shortestCol] = finalY + itemBounds.height + gap;
   });
 
-  // Add buttons logic - avoid duplicates
-  if (items.length > 0) {
-    // Add button before first item
-    if (itemPositions.length > 0) {
-      const firstPos = itemPositions[0];
+  items.forEach((item, index) => {
+    const col = index % columns;
+    const row = Math.floor(index / columns);
+
+    const itemX = col * colWidth;
+    const baseY = row * (itemBounds.height + gap);
+    const columnStepOffset = col * stepHeight;
+    const pseudoRandomSeed = (index * 47 + col * 23) % 100;
+    const randomVariation = (pseudoRandomSeed / 100 - 0.5) * randomOffset;
+    const itemY = baseY + columnStepOffset + randomVariation;
+
+    if (index === 0) {
       btnElements.push(
         <BtnAdd
           indexes={[0]}
-          x={firstPos.x - gap / 2 - btnBounds.width / 2}
-          y={firstPos.y + (itemBounds.height - btnBounds.height) / 2}
+          x={itemX - gap / 2 - btnBounds.width / 2}
+          y={itemY + (itemBounds.height - btnBounds.height) / 2}
         />,
       );
     }
 
-    // Add buttons between items and at the end
-    itemPositions.forEach((pos, index) => {
+    if (col < columns - 1 && index < items.length - 1) {
+      const nextRow = Math.floor((index + 1) / columns);
+
+      if (row === nextRow) {
+        btnElements.push(
+          <BtnAdd
+            indexes={[index + 1]}
+            x={itemX + itemBounds.width + (gap - btnBounds.width) / 2}
+            y={itemY + (itemBounds.height - btnBounds.height) / 2}
+          />,
+        );
+      }
+    }
+
+    if (col === columns - 1 || index === items.length - 1) {
       btnElements.push(
         <BtnAdd
           indexes={[index + 1]}
-          x={pos.x + itemBounds.width + gap / 2 - btnBounds.width / 2}
-          y={pos.y + (itemBounds.height - btnBounds.height) / 2}
+          x={itemX + itemBounds.width + (gap - btnBounds.width) / 2}
+          y={itemY + (itemBounds.height - btnBounds.height) / 2}
         />,
       );
-    });
-  }
-
-  // 添加流动的装饰元素
-  itemPositions.forEach((pos, index) => {
-    if (index > 0) {
-      const prevPositions = itemPositions.slice(0, index);
-      const sameColPrev = prevPositions.filter((p) => p.col === pos.col).pop();
-
-      if (sameColPrev) {
-        // 同列的连接线
-        const startX = sameColPrev.x + itemBounds.width / 2;
-        const startY = sameColPrev.y + itemBounds.height;
-        const endX = pos.x + itemBounds.width / 2;
-        const endY = pos.y;
-
-        const controlY = startY + (endY - startY) / 2;
-        const curvePath = `M ${startX} ${startY} Q ${startX} ${controlY} ${endX} ${endY}`;
-
-        decorElements.push(
-          <Path
-            d={curvePath}
-            stroke="#e0e0e0"
-            strokeWidth={2}
-            strokeDasharray="3,3"
-            fill="none"
-            width={Math.max(Math.abs(endX - startX), 10)}
-            height={Math.max(endY - startY, 10)}
-          />,
-        );
-
-        // 流动点
-        decorElements.push(
-          <Ellipse
-            x={startX - 3}
-            y={startY - 3}
-            width={6}
-            height={6}
-            fill="#b0bec5"
-          />,
-        );
-      }
-
-      // 跨列的流动效果
-      if (index % 3 === 0 && index > 2) {
-        const crossColPrev = prevPositions[index - 3];
-        if (crossColPrev && crossColPrev.col !== pos.col) {
-          const startX = crossColPrev.x + itemBounds.width;
-          const startY = crossColPrev.y + itemBounds.height / 2;
-          const endX = pos.x;
-          const endY = pos.y + itemBounds.height / 2;
-
-          const midX = startX + (endX - startX) / 2;
-          const curvePath = `M ${startX} ${startY} Q ${midX} ${startY - 20} ${endX} ${endY}`;
-
-          decorElements.push(
-            <Path
-              d={curvePath}
-              stroke="#f0f0f0"
-              strokeWidth={1}
-              strokeOpacity={0.6}
-              fill="none"
-              width={Math.max(Math.abs(endX - startX), 10)}
-              height={Math.max(Math.abs(endY - startY) + 40, 50)}
-            />,
-          );
-        }
-      }
     }
   });
 
-  // Add initial buttons for empty list
   if (items.length === 0) {
-    // Initial add button in the center for empty state
     btnElements.push(
       <BtnAdd
         indexes={[0]}
@@ -184,7 +141,6 @@ export const ListWaterfall: ComponentType<ListWaterfallProps> = (props) => {
     >
       {titleContent}
       <Group>
-        <Group>{decorElements}</Group>
         <ItemsGroup>{itemElements}</ItemsGroup>
         <BtnsGroup>{btnElements}</BtnsGroup>
       </Group>
