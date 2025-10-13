@@ -119,31 +119,31 @@ export const Composite = () => {
       >
         <Form.Item label="结构" name="structure">
           <Select
-            style={{ width: 200 }}
+            style={{ minWidth: 250 }}
             options={getStructures().map((value) => ({ label: value, value }))}
           />
         </Form.Item>
         <Form.Item label="数据项" name="item">
           <Select
-            style={{ width: 200 }}
+            style={{ minWidth: 150 }}
             options={items.map((value) => ({ label: value, value }))}
           />
         </Form.Item>
         <Form.Item label="二级数据项" name="item2">
           <Select
-            style={{ width: 200 }}
+            style={{ minWidth: 150 }}
             options={['', ...items].map((value) => ({ label: value, value }))}
           />
         </Form.Item>
         <Form.Item label="数据" name="data">
           <Select
-            style={{ width: 200 }}
+            style={{ width: 100 }}
             options={DATA.map(({ label, key }) => ({ label, value: key }))}
           />
         </Form.Item>
         <Form.Item label="主题" name="theme">
           <Select
-            style={{ width: 200 }}
+            style={{ width: 80 }}
             options={[
               { label: '亮色', value: 'light' },
               { label: '暗色', value: 'dark' },

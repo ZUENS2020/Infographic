@@ -124,8 +124,9 @@ const BUILT_IN_TEMPLATES: Record<string, TemplateOptions> = {
     design: {
       title: 'default',
       structure: { type: 'list-column', gap: 5 },
-      items: [{ type: 'pyramid', width: 600, gap: 5 }],
+      items: [{ type: 'pyramid', width: 700, gap: 5 }],
     },
+    themeConfig: {},
   },
   'list-grid-badge-card': {
     design: {
