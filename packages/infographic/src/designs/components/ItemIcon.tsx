@@ -21,27 +21,20 @@ export const ItemIcon = (props: ItemIconProps) => {
   );
 };
 
-export const ItemIconCircle = (
-  props: ItemIconProps & { colorBg?: string; padding?: number },
-) => {
-  const {
-    indexes,
-    size = 32,
-    fill,
-    colorBg = 'white',
-    padding = 6,
-    ...restProps
-  } = props;
-  const radius = size / Math.SQRT2 + padding;
-  const width = radius * 2;
-  const offset = (width - size) / 2;
+export const ItemIconCircle = (props: ItemIconProps & { colorBg?: string }) => {
+  const { indexes, size = 50, fill, colorBg = 'white', ...restProps } = props;
+
+  // 圆形内最大内切正方形的边长 = 圆的直径 / √2
+  const innerSize = size / Math.SQRT2;
+  const offset = (size - innerSize) / 2;
+
   const iconProps: RectProps = {
     fill: colorBg,
     ...restProps,
     x: offset,
     y: offset,
-    width: size,
-    height: size,
+    width: innerSize,
+    height: innerSize,
   };
 
   const prefix = `item-${getItemKeyFromIndexes(indexes)}`;
@@ -49,11 +42,11 @@ export const ItemIconCircle = (
   return (
     <Group
       {...restProps}
-      width={width}
-      height={width}
+      width={size}
+      height={size}
       id={`${prefix}-group-icon`}
     >
-      <Ellipse width={width} height={width} id={`${prefix}-bg`} fill={fill} />
+      <Ellipse width={size} height={size} id={`${prefix}-bg`} fill={fill} />
       <Rect {...iconProps} id={`${prefix}-icon`} />
     </Group>
   );

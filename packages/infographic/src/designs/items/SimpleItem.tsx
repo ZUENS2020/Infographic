@@ -9,6 +9,7 @@ import type { BaseItemProps } from './types';
 export interface SimpleItemProps extends BaseItemProps {
   width?: number;
   gap?: number;
+  showIcon?: boolean;
   iconSize?: number;
 }
 
@@ -19,13 +20,14 @@ export const SimpleItem: ComponentType<SimpleItemProps> = (props) => {
       datum,
       width = 200,
       gap = 4,
+      showIcon = true,
       iconSize = 30,
       positionH = 'normal',
       positionV = 'normal',
       themeColors,
     },
     restProps,
-  ] = getItemProps(props, ['width', 'gap', 'iconSize']);
+  ] = getItemProps(props, ['width', 'gap', 'showIcon', 'iconSize']);
 
   const { label, desc, icon } = datum;
 
@@ -51,15 +53,15 @@ export const SimpleItem: ComponentType<SimpleItemProps> = (props) => {
     </ItemLabel>
   );
   const labelBounds = getElementBounds(labelContent);
-  const iconContent = (
+  const iconContent = showIcon ? (
     <ItemIcon
       indexes={indexes}
       size={iconSize}
       fill={themeColors.colorTextSecondary}
     />
-  );
+  ) : null;
 
-  if (!icon) {
+  if (!showIcon || !icon) {
     return (
       <Group {...restProps}>
         <ItemLabel

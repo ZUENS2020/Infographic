@@ -7,10 +7,10 @@ import {
   Group,
   Rect,
 } from '@antv/infographic-jsx';
-import { getPaletteColor } from '../../renderer';
 import { ItemsGroup } from '../components';
 import { LinearGradient } from '../defs';
 import { FlexLayout } from '../layouts';
+import { getPaletteColor } from '../utils';
 import { registerStructure } from './registry';
 import type { BaseStructureProps } from './types';
 
@@ -126,11 +126,7 @@ export const CompareHierarchyLeftRight: ComponentType<
     if (decoration === 'none') return;
     const [x, y] = pos;
 
-    const currentColor = getPaletteColor(
-      options.themeConfig?.palette,
-      indexes,
-      data.items.length,
-    );
+    const currentColor = getPaletteColor(options, indexes);
     const props: DecorationProps = {
       x,
       y,

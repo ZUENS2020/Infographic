@@ -395,6 +395,48 @@ const BUILT_IN_TEMPLATES: Record<string, TemplateOptions> = {
       items: [{ type: 'quarter-circular' }],
     },
   },
+  'sequence-roadmap-vertical-plain-text': {
+    design: {
+      title: 'default',
+      structure: { type: 'sequence-roadmap-vertical' },
+      items: [{ type: 'plain-text' }],
+    },
+  },
+  'sequence-roadmap-vertical-simple': {
+    design: {
+      title: 'default',
+      structure: { type: 'sequence-roadmap-vertical' },
+      items: [{ type: 'simple', showIcon: false }],
+    },
+  },
+  'sequence-roadmap-vertical-badge-card': {
+    design: {
+      title: 'default',
+      structure: { type: 'sequence-roadmap-vertical' },
+      items: [{ type: 'badge-card' }],
+    },
+  },
+  'sequence-roadmap-vertical-pill-badge': {
+    design: {
+      title: 'default',
+      structure: { type: 'sequence-roadmap-vertical' },
+      items: [{ type: 'pill-badge' }],
+    },
+  },
+  'sequence-roadmap-vertical-quarter-circular': {
+    design: {
+      title: 'default',
+      structure: { type: 'sequence-roadmap-vertical' },
+      items: [{ type: 'quarter-circular' }],
+    },
+  },
+  'sequence-roadmap-vertical-quarter-simple-card': {
+    design: {
+      title: 'default',
+      structure: { type: 'sequence-roadmap-vertical' },
+      items: [{ type: 'quarter-simple-card' }],
+    },
+  },
 };
 
 Object.entries(BUILT_IN_TEMPLATES).forEach(([name, options]) => {
