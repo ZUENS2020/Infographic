@@ -45,7 +45,10 @@ export function parseOptions(
     template,
     design: parseDesign({ ...templateDesign, ...design }, options),
     theme,
-    themeConfig: parseTheme(theme, themeConfig),
+    themeConfig: parseTheme(
+      theme,
+      merge({ ...restTemplateOptions?.themeConfig }, themeConfig),
+    ),
   };
 }
 
@@ -122,7 +125,7 @@ function parseDesignItem(
         themeColors = generateColors(
           getPaletteColor(themeConfig?.palette, indexes, data?.items?.length) ||
             themeConfig?.colorPrimary ||
-            '#1677FF',
+            '#FF356A',
           background,
         ),
         ...restProps
@@ -148,12 +151,12 @@ function parseTheme(
   parsedThemeConfig.stylize = themeConfig.stylize ?? base.stylize;
 
   if (!parsedThemeConfig.colorPrimary) {
-    parsedThemeConfig.colorPrimary = '#1677FF';
+    parsedThemeConfig.colorPrimary = '#FF356A';
   }
   if (!parsedThemeConfig.palette) {
     parsedThemeConfig.palette = [parsedThemeConfig.colorPrimary];
   }
-
+  console.log('Parsed Theme Config:', parsedThemeConfig);
   return parsedThemeConfig;
 }
 

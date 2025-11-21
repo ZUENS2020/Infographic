@@ -1,3 +1,6 @@
+import pkg from '../package.json';
+
+export const VERSION = pkg.version;
 export * from './designs';
 export { getItemProps, getThemeColors } from './designs/utils';
 export {
@@ -36,6 +39,7 @@ export {
   loadFonts,
   registerFont,
   registerPalette,
+  registerPattern,
   setDefaultFont,
 } from './renderer';
 export { loadSVGResource, registerResourceLoader } from './resource';
