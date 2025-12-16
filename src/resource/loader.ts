@@ -2,25 +2,38 @@ import { getOrCreateDefs } from '../utils';
 import {
   loadImageBase64Resource,
   loadRemoteResource,
+  loadSearchResource,
   loadSVGResource,
 } from './loaders';
 import { getCustomResourceLoader } from './registry';
-import type { Resource, ResourceConfig } from './types';
+import type { Resource, ResourceConfig, ResourceScene } from './types';
 import { getResourceId, parseResourceConfig } from './utils';
 
 async function getResource(
+  scene: ResourceScene,
   config: string | ResourceConfig,
 ): Promise<Resource | null> {
   const cfg = parseResourceConfig(config);
   if (!cfg) return null;
-  const { type, data } = cfg;
+  cfg.scene ||= scene;
+  const { source, data, format, encoding } = cfg;
 
-  if (type === 'image') {
-    return await loadImageBase64Resource(data);
-  } else if (type === 'svg') {
+  if (source === 'inline') {
+    const isDataURI = data.startsWith('data:');
+    if (format === 'svg' && encoding === 'raw') {
+      return loadSVGResource(data);
+    }
+    if (format === 'svg' && isDataURI) {
+      return await loadImageBase64Resource(data);
+    }
+    if (isDataURI || format === 'image') {
+      return await loadImageBase64Resource(data);
+    }
     return loadSVGResource(data);
-  } else if (type === 'remote') {
-    return await loadRemoteResource(data);
+  } else if (source === 'remote') {
+    return await loadRemoteResource(data, format);
+  } else if (source === 'search') {
+    return await loadSearchResource(data, format);
   } else {
     const customLoader = getCustomResourceLoader();
     if (customLoader) return await customLoader(cfg);
@@ -38,6 +51,7 @@ const RESOURCE_LOAD_MAP = new WeakMap<SVGSVGElement, Map<string, SVGElement>>();
  */
 export async function loadResource(
   svg: SVGSVGElement | null,
+  scene: ResourceScene,
   config: string | ResourceConfig,
 ): Promise<string | null> {
   if (!svg) return null;
@@ -47,7 +61,7 @@ export async function loadResource(
 
   const resource = RESOURCE_MAP.has(id)
     ? RESOURCE_MAP.get(id) || null
-    : await getResource(cfg);
+    : await getResource(scene, cfg);
 
   if (!resource) return null;
 
