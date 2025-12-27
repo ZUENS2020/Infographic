@@ -6,7 +6,7 @@ import { HistorySidebar } from './components/HistorySidebar';
 import { useOpenAI } from './hooks/useOpenAI';
 
 function App() {
-  const { config, models, loadingModels } = useOpenAI();
+  const { config } = useOpenAI();
   const [infographicCode, setInfographicCode] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);

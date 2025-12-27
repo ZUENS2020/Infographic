@@ -11,6 +11,12 @@ const DB_FILE = path.join(__dirname, 'db.json');
 app.use(cors());
 app.use(bodyParser.json());
 
+// Serve Static Files from Frontend
+const webAppDist = path.join(__dirname, '../web-app/dist');
+if (fs.existsSync(webAppDist)) {
+    app.use(express.static(webAppDist));
+}
+
 // Initialize DB if not exists
 if (!fs.existsSync(DB_FILE)) {
     fs.writeFileSync(DB_FILE, JSON.stringify({
@@ -75,6 +81,16 @@ app.delete('/api/history/:id', (req, res) => {
     res.json({ success: true });
 });
 
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+// Final-all: Serve frontend for any unhandled routes (SPA support)
+app.use((req, res) => {
+    const indexPath = path.join(__dirname, '../web-app/dist/index.html');
+    if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+    } else {
+        res.status(404).send('Frontend not built. Please run "npm run build" in web-app directory.');
+    }
+});
+
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on http://0.0.0.0:${PORT}`);
 });
