@@ -73,7 +73,21 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ code, isGenerating }
 
         setIsExporting(true);
         try {
-            await downloadImage(containerRef.current, format, 'infographic');
+            let dataUrl: string | undefined;
+
+            // Use native export if available for better layout stability
+            if (infographicRef.current && (format === 'png' || format === 'svg')) {
+                try {
+                    dataUrl = await infographicRef.current.toDataURL({
+                        type: format,
+                        dpr: 2
+                    } as any);
+                } catch (err) {
+                    console.warn("Native export failed, falling back to html-to-image", err);
+                }
+            }
+
+            await downloadImage(containerRef.current, format as ExportFormat, 'infographic', dataUrl);
         } catch (e) {
             console.error("Export failed", e);
             setError("导出失败");
