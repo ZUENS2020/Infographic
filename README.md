@@ -6,12 +6,11 @@
 
 🦋 An Infographic Generation and Rendering Framework, bring words to life!
 
-<a href="https://trendshift.io/repositories/15838" target="_blank"><img src="https://trendshift.io/api/badge/repositories/15838" alt="antvis%2FInfographic | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 
-[![npm version](https://img.shields.io/npm/v/@antv/infographic.svg)](https://www.npmjs.com/package/@antv/infographic)
-[![build status](https://img.shields.io/github/actions/workflow/status/antvis/infographic/build.yml)](https://github.com/antvis/infographic/actions)
-![Visitors](https://hitscounter.dev/api/hit?url=https://github.com/antvis/infographic&label=Visitors&icon=graph-up&color=%23dc3545&message=&style=flat&tz=UTC)
-[![license](https://img.shields.io/npm/l/@antv/infographic.svg)](./LICENSE)
+
+[![build status](https://img.shields.io/github/actions/workflow/status/ZUENS2020/Infographic/build.yml)](https://github.com/ZUENS2020/Infographic/actions)
+![Visitors](https://hitscounter.dev/api/hit?url=https://github.com/ZUENS2020/Infographic&label=Visitors&icon=graph-up&color=%23dc3545&message=&style=flat&tz=UTC)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
 <img src="https://mdn.alipayobjects.com/huamei_qa8qxu/afts/img/A*EdkXSojOxqsAAAAAQHAAAAgAemJ7AQ/original" width="256">
 
@@ -22,23 +21,8 @@
 <div align="center">
 
 <p align="center">
-  <a href="https://infographic.antv.vision">
-    <img src="https://img.shields.io/badge/Website-2F54EB?style=for-the-badge" alt="Website" />
-  </a>
-  <a href="https://github.com/antvis/infographic">
+  <a href="https://github.com/ZUENS2020/Infographic">
     <img src="https://img.shields.io/badge/GitHub-000000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" />
-  </a>
-  <a href="https://infographic.antv.vision/learn">
-    <img src="https://img.shields.io/badge/Docs-722ED1?style=for-the-badge" alt="Docs" />
-  </a>
-  <a href="https://infographic.antv.vision/examples">
-    <img src="https://img.shields.io/badge/Gallery-13C2C2?style=for-the-badge" alt="Gallery" />
-  </a>
-  <a href="./prompt.md">
-    <img src="https://img.shields.io/badge/Prompt-FA8C16?style=for-the-badge" alt="Prompt" />
-  </a>
-  <a href="https://infographic.antv.vision/ai">
-    <img src="https://img.shields.io/badge/AI%20Agent-EB2F96?style=for-the-badge" alt="AI Agent" />
   </a>
 </p>
 
@@ -62,9 +46,11 @@ npm install @antv/infographic
 
 ## 📝 Quick Start
 
-[![](https://img.shields.io/badge/Getting%20Started-2F54EB)](https://infographic.antv.vision/learn/getting-started)
-[![](https://img.shields.io/badge/Infographic%20Syntax-13C2C2)](https://infographic.antv.vision/learn/infographic-syntax)
-[![](https://img.shields.io/badge/Configuration-722ED1)](https://infographic.antv.vision/reference/infographic-options)
+For detailed documentation and examples, please visit [AntV Infographic Official Website](https://infographic.antv.vision):
+
+- [Getting Started](https://infographic.antv.vision/learn/getting-started)
+- [Infographic Syntax](https://infographic.antv.vision/learn/infographic-syntax)
+- [Configuration](https://infographic.antv.vision/reference/infographic-options)
 
 ```ts
 import { Infographic } from '@antv/infographic';
@@ -95,7 +81,7 @@ The rendered result looks like this:
 
 ## Streaming Rendering
 
-[![](https://img.shields.io/badge/Demo-D46A6A)](https://infographic.antv.vision/learn/infographic-syntax)
+For more details, see [the official documentation](https://infographic.antv.vision/learn/infographic-syntax).
 
 With a highly fault-tolerant infographic syntax you can stream AI output in real time and progressively render the infographic.
 
@@ -111,15 +97,16 @@ for (const chunk of chunks) {
 
 ## 💬 Community & Communication
 
-- Submit your questions or suggestions on GitHub
-- Join [GitHub Discussions](https://github.com/antvis/infographic/discussions) to communicate with the community
-- Contributions are welcome! Let's improve AntV Infographic together!
+- Submit your questions or suggestions on [GitHub Issues](https://github.com/ZUENS2020/Infographic/issues)
+- Join [GitHub Discussions](https://github.com/ZUENS2020/Infographic/discussions) to communicate with the community
+- Contributions are welcome! Let's improve this project together!
 
 If you have any suggestions, feel free to communicate with us on GitHub! Star ⭐ us to show your support.
 
+- [Original Project by AntV](https://github.com/antvis/infographic)
 - [AntV Official Website](https://antv.antgroup.com/)
-- [GitHub Repository](https://github.com/antvis/infographic)
-- [Issue Tracker](https://github.com/antvis/infographic/issues)
+- [GitHub Repository](https://github.com/ZUENS2020/Infographic)
+- [Issue Tracker](https://github.com/ZUENS2020/Infographic/issues)
 
 ## 📄 License
 

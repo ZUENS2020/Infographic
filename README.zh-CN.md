@@ -6,12 +6,11 @@
 
 🦋 新一代信息图可视化引擎，让文字信息栩栩如生！
 
-<a href="https://trendshift.io/repositories/15838" target="_blank"><img src="https://trendshift.io/api/badge/repositories/15838" alt="antvis%2FInfographic | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 
-[![npm version](https://img.shields.io/npm/v/@antv/infographic.svg)](https://www.npmjs.com/package/@antv/infographic)
-[![build status](https://img.shields.io/github/actions/workflow/status/antvis/infographic/build.yml)](https://github.com/antvis/infographic/actions)
-![Visitors](https://hitscounter.dev/api/hit?url=https://github.com/antvis/infographic&label=Visitors&icon=graph-up&color=%23dc3545&message=&style=flat&tz=UTC)
-[![license](https://img.shields.io/npm/l/@antv/infographic.svg)](./LICENSE)
+
+[![build status](https://img.shields.io/github/actions/workflow/status/ZUENS2020/Infographic/build.yml)](https://github.com/ZUENS2020/Infographic/actions)
+![Visitors](https://hitscounter.dev/api/hit?url=https://github.com/ZUENS2020/Infographic&label=Visitors&icon=graph-up&color=%23dc3545&message=&style=flat&tz=UTC)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
 <img src="https://mdn.alipayobjects.com/huamei_qa8qxu/afts/img/A*EdkXSojOxqsAAAAAQHAAAAgAemJ7AQ/original" width="256">
 
@@ -22,23 +21,8 @@
 <div align="center">
 
 <p align="center">
-  <a href="https://infographic.antv.vision">
-    <img src="https://img.shields.io/badge/%E5%AE%98%E7%BD%91-2F54EB?style=for-the-badge" alt="官网" />
-  </a>
-  <a href="https://github.com/antvis/infographic">
+  <a href="https://github.com/ZUENS2020/Infographic">
     <img src="https://img.shields.io/badge/GitHub-000000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" />
-  </a>
-  <a href="https://infographic.antv.vision/learn">
-    <img src="https://img.shields.io/badge/%E6%96%87%E6%A1%A3-722ED1?style=for-the-badge" alt="文档" />
-  </a>
-  <a href="https://infographic.antv.vision/examples">
-    <img src="https://img.shields.io/badge/%E7%A4%BA%E4%BE%8B-13C2C2?style=for-the-badge" alt="示例" />
-  </a>
-  <a href="./prompt.zh-CN.md">
-    <img src="https://img.shields.io/badge/Prompt-FA8C16?style=for-the-badge" alt="Prompt" />
-  </a>
-  <a href="https://infographic.antv.vision/ai">
-    <img src="https://img.shields.io/badge/AI%20Agent-EB2F96?style=for-the-badge" alt="AI Agent" />
   </a>
 </p>
 
@@ -62,9 +46,11 @@ npm install @antv/infographic
 
 ## 📝 快速开始
 
-[![](https://img.shields.io/badge/%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97-2F54EB)](https://infographic.antv.vision/learn/getting-started)
-[![](https://img.shields.io/badge/%E4%BF%A1%E6%81%AF%E5%9B%BE%E8%AF%AD%E6%B3%95-13C2C2)](https://infographic.antv.vision/learn/infographic-syntax)
-[![](https://img.shields.io/badge/%E9%85%8D%E7%BD%AE%E9%A1%B9-722ED1)](https://infographic.antv.vision/reference/infographic-options)
+详细文档和示例请访问 [AntV Infographic 官网](https://infographic.antv.vision)：
+
+- [入门指南](https://infographic.antv.vision/learn/getting-started)
+- [信息图语法](https://infographic.antv.vision/learn/infographic-syntax)
+- [配置项](https://infographic.antv.vision/reference/infographic-options)
 
 ```ts
 import { Infographic } from '@antv/infographic';
@@ -95,7 +81,7 @@ data
 
 ## 流式渲染
 
-[![](https://img.shields.io/badge/Demo-D46A6A)](https://infographic.antv.vision/learn/infographic-syntax)
+更多详情请参考[官方文档](https://infographic.antv.vision/learn/infographic-syntax)。
 
 使用具有高容错性的信息图语法能够实时接收 AI 流式输出并逐步渲染信息图。
 
@@ -111,15 +97,16 @@ for (const chunk of chunks) {
 
 ## 💬 社区与交流
 
-- 在 GitHub 提交你的问题或建议
-- 参与 [GitHub Discussions](https://github.com/antvis/infographic/discussions) 与社区交流
-- 欢迎参与贡献，一起完善 AntV Infographic！
+- 在 [GitHub Issues](https://github.com/ZUENS2020/Infographic/issues) 提交你的问题或建议
+- 参与 [GitHub Discussions](https://github.com/ZUENS2020/Infographic/discussions) 与社区交流
+- 欢迎参与贡献，一起完善本项目！
 
 如有任何建议，欢迎在 GitHub 上与我们交流！欢迎 Star ⭐ 支持我们。
 
+- [AntV 原始项目](https://github.com/antvis/infographic)
 - [AntV 官网](https://antv.antgroup.com/)
-- [GitHub 仓库](https://github.com/antvis/infographic)
-- [问题反馈](https://github.com/antvis/infographic/issues)
+- [GitHub 仓库](https://github.com/ZUENS2020/Infographic)
+- [问题反馈](https://github.com/ZUENS2020/Infographic/issues)
 
 ## 📄 许可证
 
