@@ -124,7 +124,6 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ code, isGenerating }
                         {isMenuOpen && (
                             <div className="absolute right-0 top-full mt-1 bg-white border rounded-md shadow-lg z-20 py-1 w-32 text-center">
                                 <button onClick={() => handleDownload('png')} className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-50">PNG 图片</button>
-                                <button onClick={() => handleDownload('jpeg')} className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-50">JPEG 图片</button>
                                 <button onClick={() => handleDownload('svg')} className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-50">SVG 矢量图</button>
                                 <div className="border-t my-1"></div>
                                 <button onClick={() => handleDownload('code')} className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-50">保存代码</button>

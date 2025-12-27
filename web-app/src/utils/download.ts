@@ -1,6 +1,6 @@
-import { toPng, toJpeg, toSvg } from 'html-to-image';
+import { toPng, toSvg } from 'html-to-image';
 
-export type ExportFormat = 'png' | 'jpeg' | 'svg' | 'json';
+export type ExportFormat = 'png' | 'svg' | 'json';
 
 export const downloadImage = async (node: HTMLElement, format: ExportFormat, fileName: string, dataUrl?: string) => {
     try {
@@ -37,9 +37,6 @@ export const downloadImage = async (node: HTMLElement, format: ExportFormat, fil
             switch (format) {
                 case 'png':
                     finalDataUrl = await toPng(node, options);
-                    break;
-                case 'jpeg':
-                    finalDataUrl = await toJpeg(node, { ...options, quality: 0.95 });
                     break;
                 case 'svg':
                     finalDataUrl = await toSvg(node, options);

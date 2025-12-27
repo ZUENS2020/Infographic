@@ -25,7 +25,7 @@ function App() {
           <div className="bg-blue-600 text-white p-1 rounded">
             <LayoutTemplate className="w-5 h-5" />
           </div>
-          信息图生成器
+          Infographic Generator
         </div>
       </header>
 
